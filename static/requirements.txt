@@ -1,0 +1,8 @@
+cat > requirements.txt <<'EOF'
+streamlit
+numpy
+matplotlib
+scikit-learn
+pillow
+requests
+EOF
