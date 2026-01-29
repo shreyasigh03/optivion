@@ -96,27 +96,85 @@ st.markdown("""
 
 st.markdown("""
 <style>
-/* Responsive tweaks for mobile */
-img { max-width:100% !important; height:auto !important; object-fit:contain !important; }
-
-@media (max-width: 800px) {
-  /* make logo smaller and reposition */
-  .logo-container { left: 12px !important; font-size:28px !important; }
-  /* reduce top navbar height/padding */
-  .stRadio [role=radiogroup] { padding: 10px 12px !important; height:56px !important; }
-  .stApp { padding-top: 78px !important; }
-  /* tighten expander and control spacing */
-  .streamlit-expanderHeader, .stExpanderHeader { padding:8px 12px !important; }
-  /* smaller buttons on phones */
-  .stButton>button, .stDownloadButton>button { padding:6px 10px !important; font-size:14px !important; }
-  /* reduce footer padding */
-  .footer { padding:12px !important; margin-top:40px !important; }
+/* ---------- GLOBAL RESPONSIVE FIX ---------- */
+html, body {
+  width: 100%;
+  overflow-x: hidden;
 }
 
-@media (max-width: 420px) {
-  .logo-container { font-size:22px !important; left:8px !important; }
-  .stRadio [role=radiogroup] { padding:8px 8px !important; height:56px !important; gap:10px; }
-  .stApp { padding-top:72px !important; }
+/* Reduce default Streamlit padding on mobile */
+@media (max-width: 900px) {
+  .stApp {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  section.main {
+    padding-top: 64px !important;
+  }
+
+  /* Navbar */
+  .stRadio [role=radiogroup] {
+    justify-content: center !important;
+    padding: 12px 10px !important;
+    height: auto !important;
+    gap: 14px !important;
+  }
+
+  .stRadio label {
+    font-size: 15px !important;
+  }
+
+  /* Logo */
+  .logo-container {
+    font-size: 26px !important;
+    left: 12px !important;
+    top: 8px !important;
+  }
+
+  /* Headings */
+  h1 { font-size: 36px !important; }
+  h2 { font-size: 28px !important; }
+  h3 { font-size: 22px !important; }
+
+  /* Home cards stack vertically */
+  .home-card {
+    margin-bottom: 16px !important;
+  }
+
+  .home-card h3 {
+    font-size: 18px !important;
+  }
+
+  /* Force columns to stack */
+  div[data-testid="column"] {
+    width: 100% !important;
+    flex: 100% !important;
+  }
+
+  /* Plots */
+  canvas, img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Buttons */
+  .stButton>button {
+    width: 100% !important;
+    font-size: 14px !important;
+  }
+
+  /* Sliders & inputs */
+  label {
+    font-size: 14px !important;
+  }
+}
+
+/* ---------- SMALL PHONES ---------- */
+@media (max-width: 480px) {
+  h1 { font-size: 30px !important; }
+  h2 { font-size: 24px !important; }
+  .logo-container { font-size: 22px !important; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -254,9 +312,6 @@ st.markdown("""
         align-items: center;
         z-index: 1000;
     }
-    .stApp {
-        padding-top: 90px;
-    }
     @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400&display=swap');
 
     .stRadio label {
@@ -286,9 +341,19 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Add CSS to fix space below fixed navbar
+st.markdown("""
+<style>
+/* FIX SPACE BELOW FIXED NAVBAR */
+section.main {
+    padding-top: 70px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 selected_page = st.radio(
     "Navigation Menu",  # non-empty label to remove warning
-    ["Home", "Interference", "Simulation", "Model Explorer"],
+    ["Home", "Interference", "Analog Signal Simulation", "Model Explorer"],
     horizontal=True,
     label_visibility="collapsed",
     key="nav"
@@ -302,10 +367,48 @@ else:
     page = selected_page
 
 # Home Page — Clean and Minimal
+# ===== HOMEPAGE GLOW CARD STYLES =====
+st.markdown("""
+<style>
+.home-card {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    padding: 22px;
+    border: 1px solid #e6e6e6;
+    transition: transform 0.3s ease, box-shadow 0.4s ease;
+    overflow: hidden;
+}
+
+.home-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 0 25px rgba(0, 120, 255, 0.35);
+}
+
+.home-card::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background: radial-gradient(circle, rgba(0,120,255,0.12), transparent 65%);
+    animation: pulseGlow 6s linear infinite;
+}
+
+@keyframes pulseGlow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.home-card * {
+    position: relative;
+    z-index: 2;
+}
+</style>
+""", unsafe_allow_html=True)
+
 if page == "Home":
     st.markdown(
         """
-        <div style="font-family: 'Exo 2', sans-serif; padding: 80px 40px 20px 40px;">
+        <div style="font-family: 'Exo 2', sans-serif; padding: 0px 40px 20px 40px;">
             <h1 style="font-size:56px; font-weight:200; color:#111; letter-spacing:3px; margin-bottom:10px;">Optivion</h1>
             <p style="font-size:22px; color:#333; letter-spacing:1.5px; margin-bottom:5px;">Analog & Light-Based Computation for AI</p>
         </div>
@@ -313,180 +416,48 @@ if page == "Home":
         unsafe_allow_html=True
     )
 
-    # Project Overview / About Section
+    # Minimal intro text after subtitle
     st.markdown("""
-<div style="margin-top:0px; font-family: 'Exo 2', sans-serif; max-width:800px; margin-left:40px; margin-right:auto;">
-    <p style="font-size:16px; color:#333; line-height:1.6;">
-        Optivion is an innovative platform that combines analog signal processing and light-based computation with machine learning models.
-        Explore simulations, visualize interference patterns, and experiment with ML models in real-time.
+<div style="margin-left:40px; max-width:700px; font-family:'Exo 2', sans-serif;">
+  <p style="font-size:17px; line-height:1.6; color:#222;">
+    Optivion is a visual sandbox for exploring how <b>light, waves, and analog signals</b>
+    can perform computation and inspire new AI systems.
+  </p>
+  <p style="font-size:15px; color:#444;">
+    Use the modules below to interactively explore interference patterns,
+    analog simulations, and machine-learning behavior.
+  </p>
+</div>
+""", unsafe_allow_html=True)
+
+    # HOMEPAGE GLOWING CARD SECTION (Interference / Simulation / Model Explorer)
+    st.markdown("""
+<div style="margin-top:40px; display:flex; gap:24px; max-width:900px; margin-left:40px; font-family:'Exo 2', sans-serif;">
+  
+  <div class="home-card" style="flex:1;">
+    <h3>Interference</h3>
+    <p>
+      Visualize how light waves interfere, combine, and cancel.
+      This forms the physical intuition behind analog computation.
     </p>
-</div>
-    """, unsafe_allow_html=True)
+  </div>
 
-    # Animated Card CSS for Problem → Solution → Impact and How It Works sections
-    st.markdown("""
-<style>
-.animated-card {
-    position: relative;
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    border: 1px solid #e6e6e6;
-    overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-.animated-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 10px rgba(0, 50, 150, 0.15); /* Slight darker blue glow on hover */
-}
-.animated-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(0,50,150,0.05) 0%, transparent 70%);
-    animation: cardMotion 6s linear infinite;
-    z-index: 0;
-}
-.animated-card * {
-    position: relative; /* keep text above animation */
-    z-index: 1;
-}
-@keyframes cardMotion {
-    0% { transform: rotate(0deg) translate(0,0); }
-    50% { transform: rotate(180deg) translate(3px,3px); }
-    100% { transform: rotate(360deg) translate(0,0); }
-}
-</style>
-""", unsafe_allow_html=True)
+  <div class="home-card" style="flex:1;">
+    <h3>Analog Simulation</h3>
+    <p>
+      Explore continuous signals, noise, and real-time dynamics
+      instead of discrete digital steps.
+    </p>
+  </div>
 
-    # Problem → Solution → Impact Section - Centered with animated-card class and white background, black text
-    st.markdown("""
-<div style="margin-top: 40px; font-family: 'Exo 2', sans-serif; max-width: 900px; margin-left:auto; margin-right:auto; text-align:center;">
-    <h2 style="font-weight: 400; color: #111;">Problem, Solution & Impact</h2>
-    <div style="display:flex; gap: 30px; margin-top: 20px; justify-content:center; cursor: pointer;">
-        <div id="problem" class="animated-card" style="flex: 1;">
-            <h3 style="font-weight: 600; color: #000;">Problem</h3>
-            <p style="color: #000; line-height: 1.5;">
-                Traditional digital computation struggles with energy efficiency and real-time analog signal processing,
-                limiting advancements in AI that rely on physical phenomena like light interference.
-            </p>
-        </div>
-        <div id="solution" class="animated-card" style="flex: 1;">
-            <h3 style="font-weight: 600; color: #000;">Solution</h3>
-            <p style="color: #000; line-height: 1.5;">
-                Optivion leverages analog and light-based computation techniques integrated with ML models,
-                enabling efficient, real-time simulations and visualizations that bridge the gap between physical systems and AI.
-            </p>
-        </div>
-        <div id="impact" class="animated-card" style="flex: 1;">
-            <h3 style="font-weight: 600; color: #000;">Impact</h3>
-            <p style="color: #000; line-height: 1.5;">
-                This approach promises breakthroughs in energy-efficient AI hardware, faster simulations,
-                and novel machine learning paradigms inspired by physical analog processes.
-            </p>
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+  <div class="home-card" style="flex:1;">
+    <h3>Model Explorer</h3>
+    <p>
+      Connect physics-inspired intuition with machine learning
+      decision boundaries and behavior.
+    </p>
+  </div>
 
-    # How It Works Section (updated colors and centering) with animated-card class and white background, black text
-    st.markdown("""
-<div style="margin-top: 40px; font-family: 'Exo 2', sans-serif; max-width: 900px; margin-left: auto; margin-right: auto; text-align: center;">
-    <h2 style="font-weight: 400; color: #111;">How It Works</h2>
-    <div style="display:flex; gap:20px; justify-content:center; margin-top:20px; cursor:pointer;">
-        <div class="animated-card" style="flex:1;">
-            <h3 style="font-weight:600; color: #000;">Interference Pattern</h3>
-            <p style="color: #000; line-height:1.5;">Visualize light interference with real-time analog simulation.</p>
-        </div>
-        <div class="animated-card" style="flex:1;">
-            <h3 style="font-weight:600; color: #000;">Analog Signal ML Model Visualization</h3>
-            <p style="color: #000; line-height:1.5;">Explore machine learning models integrated with analog signal data.</p>
-        </div>
-        <div class="animated-card" style="flex:1;">
-            <h3 style="font-weight:600; color: #000;">Real-Time Simulation</h3>
-            <p style="color: #000; line-height:1.5;">Experience interactive analog simulations in real-time with adjustable parameters.</p>
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-    # Step 1-4 Carousel with Blue Neon Glow
-    st.markdown("""
-<style>
-.step-card {
-    position: relative;
-    background: white;
-    border-radius: 50%;
-    width: 160px;
-    height: 160px;
-    padding: 20px;
-    border: 1px solid #e6e6e6;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.5s;
-    box-shadow: 0 0 20px rgba(0, 150, 255, 0.5);
-}
-.step-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 50px rgba(0, 150, 255, 0.8);
-}
-.step-card h3 {
-    font-weight: 600;
-    color: #111;
-    font-size: 16px;
-    margin: 5px 0;
-}
-.step-card p {
-    font-size: 12px;
-    color: #333;
-    line-height: 1.2;
-}
-.glow {
-    position: absolute;
-    width: 120%;
-    height: 120%;
-    border-radius: 50%;
-    top: -10%;
-    left: -10%;
-    background: radial-gradient(circle, rgba(0,150,255,0.25) 0%, transparent 70%);
-    animation: glowPulse 2.5s infinite alternate;
-    z-index: -1;
-}
-@keyframes glowPulse {
-    0% { transform: scale(0.95); opacity: 0.7; }
-    50% { transform: scale(1.05); opacity: 0.9; }
-    100% { transform: scale(0.95); opacity: 0.7; }
-}
-</style>
-
-<div style="display:flex; gap:30px; justify-content:center; margin-top:60px;">
-    <div class="step-card">
-        <div class="glow"></div>
-        <h3>Step 1</h3>
-        <p>Explore Signals</p>
-    </div>
-    <div class="step-card">
-        <div class="glow"></div>
-        <h3>Step 2</h3>
-        <p>Simulate Interference</p>
-    </div>
-    <div class="step-card">
-        <div class="glow"></div>
-        <h3>Step 3</h3>
-        <p>Explore ML Models</p>
-    </div>
-    <div class="step-card">
-        <div class="glow"></div>
-        <h3>Step 4</h3>
-        <p>Experiment & Learn</p>
-    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -518,42 +489,10 @@ if page == "Interference":
     # Controls (kept inside an expander so we don't remove existing UI)
     with controls_col:
         with st.expander("Controls", expanded=True):
-            # Presets / Randomizer (callbacks preserved)
             if "phase_diff" not in st.session_state:
                 st.session_state.phase_diff = 90
             if "wavelength" not in st.session_state:
                 st.session_state.wavelength = 5.0
-
-            def apply_preset_cb(preset_val):
-                if preset_val == "Default":
-                    st.session_state['phase_diff'] = 90
-                    st.session_state['wavelength'] = 5.0
-                elif preset_val == "Double-slit":
-                    st.session_state['phase_diff'] = 0
-                    st.session_state['wavelength'] = 2.5
-                elif preset_val == "High-noise":
-                    st.session_state['phase_diff'] = 45
-                    st.session_state['wavelength'] = 6.5
-                elif preset_val == "Low-coherence":
-                    st.session_state['phase_diff'] = 180
-                    st.session_state['wavelength'] = 9.0
-                else:  # Random
-                    st.session_state['phase_diff'] = int(np.random.uniform(0,360))
-                    st.session_state['wavelength'] = float(np.round(np.random.uniform(1.0,10.0),2))
-
-            def randomize_cb():
-                st.session_state['phase_diff'] = int(np.random.uniform(0,360))
-                st.session_state['wavelength'] = float(np.round(np.random.uniform(1.0,10.0),2))
-
-            preset_col1, preset_col2 = st.columns([3,2])
-            with preset_col1:
-                preset = st.selectbox("Preset", ["Default","Double-slit","High-noise","Low-coherence","Random"])    
-            with preset_col2:
-                st.button("Apply Preset", on_click=apply_preset_cb, args=(preset,))
-
-            st.button("Randomize", on_click=randomize_cb)
-
-            st.write("")
 
             # Sliders
             phase_diff = st.slider(
@@ -598,6 +537,7 @@ if page == "Interference":
 
     # Canvas and exporters
     with view_col:
+        st.markdown("<p style='font-size:15px; color:#222; margin-bottom:8px;'>This visualization shows how two light waves combine to form interference patterns.</p>", unsafe_allow_html=True)
         st.markdown("<h3 style='margin-top:6px;'>1D Interference (preview)</h3>", unsafe_allow_html=True)
         placeholder_1d = st.empty()
 
@@ -650,7 +590,7 @@ if page == "Interference":
                 wavelength=st.session_state.wavelength,
                 phase_diff_deg=ph,
                 size=size,
-                separation=separation
+                separation=10.0
             )
             fig, ax = plt.subplots(figsize=(8,2.5))
             ax.imshow(arr, cmap='gray', aspect='auto')
@@ -663,7 +603,6 @@ if page == "Interference":
 
         # 2D controls (kept minimal here in view_col)
         size = st.selectbox("Resolution", [128, 256, 384], index=1, key="interf_size")
-        separation = st.slider("Source separation", 2.0, 30.0, 10.0, 0.5, key="interf_sep")
 
         if "playing_2d" not in st.session_state:
             st.session_state.playing_2d = False
@@ -680,7 +619,7 @@ if page == "Interference":
             delay = max(0.01, 0.12 / speed)
             i = 0
             while st.session_state.playing_2d:
-                frame = gen_2d_frame(i, size, separation)
+                frame = gen_2d_frame(i, size, separation=None)
                 preview_place.image(frame, clamp=True, channels='L', width='stretch')
                 frames.append(frame)
                 time.sleep(delay)
@@ -690,8 +629,8 @@ if page == "Interference":
                     break
             st.session_state._last_2d_frames = frames
         else:
-            preview_place.image(gen_2d_frame(0, size, separation), width='stretch')
-            st.session_state._last_2d_frames = [gen_2d_frame(0, size, separation)]
+            preview_place.image(gen_2d_frame(0, size, separation=None), width='stretch')
+            st.session_state._last_2d_frames = [gen_2d_frame(0, size, separation=None)]
 
         # Export controls
         exp_col_a, exp_col_b = st.columns([1,1])
@@ -699,7 +638,7 @@ if page == "Interference":
             n_frames = st.number_input("Export frames", min_value=1, max_value=200, value=10, step=1, key='interf_export_n')
         with exp_col_b:
             if st.button("Capture & Download PNGs", key='interf_capture'):
-                frames = [gen_2d_frame(i, size, separation) for i in range(n_frames)]
+                frames = [gen_2d_frame(i, size, separation=None) for i in range(n_frames)]
                 zip_bytes = create_frames_zip_bytes(frames, prefix="interference")
                 st.download_button("Download frames (zip)", data=zip_bytes, file_name="interference_frames.zip", mime="application/zip")
             if st.button("Try Create GIF", key='interf_gif'):
@@ -738,7 +677,7 @@ button * { color: black !important; fill: black !important; }
 </style>
 """, unsafe_allow_html=True)
 
-if page == "Simulation":
+if page == "Analog Signal Simulation":
     # Simulation page — controls left, canvas right, help in expander
     controls_col, view_col = st.columns([1,2])
 
@@ -780,6 +719,7 @@ if page == "Simulation":
                 st.write("Increase noise to test signal robustness. Use Play to animate and capture frames for export.")
 
     with view_col:
+        st.markdown("<p style='font-size:15px; color:#222; margin-bottom:8px;'>This simulates continuous analog signals with noise, unlike discrete digital signals.</p>", unsafe_allow_html=True)
         st.markdown("<h1 style='margin-top:6px;'>Analog Signal Simulation</h1>", unsafe_allow_html=True)
         sim_placeholder = st.empty()
 
@@ -896,6 +836,7 @@ if page == "Model Explorer":
                 st.write("Switch datasets and models to compare boundaries. Use Play to observe sensitivity to jitter.")
 
     with view_col:
+        st.markdown("<p style='font-size:15px; color:#222; margin-bottom:8px;'>This shows how physical intuition from waves translates into machine-learning decision boundaries.</p>", unsafe_allow_html=True)
         # Load dataset
         if st.session_state.get('me_dataset') == 'Moons' or dataset_name == 'Moons':
             X, y = make_moons(noise=0.3, random_state=0)
